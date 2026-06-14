@@ -4,6 +4,14 @@
 #include <wincodec.h>
 constexpr float cameraZ = 320;
 
+template <class T>
+static void ReleaseIfExists(T*& resource) {
+    if (resource) {
+        resource->Release();
+        resource = nullptr;
+    }
+}
+
 static void RenderMeshOveraly(RE::INTERFACE_LIGHT_SCHEME scheme) {
     using func_t = void(RE::UI3DSceneManager*, RE::INTERFACE_LIGHT_SCHEME, RE::NiCamera*, bool);
     const REL::Relocation<func_t> func{REL::RelocationID(51855, 52727)};
@@ -181,12 +189,17 @@ void RenderManager::Render() {
             const float clearColor[4]{0.0f, 0.0f, 0.0f, 0.0f};
             context->ClearRenderTargetView(targetRTV, clearColor);
             context->OMSetBlendState(oldBlendState, oldBlendFactor, oldSampleMask);
+            ReleaseIfExists(oldBlendState);
 
-            context->Begin(reinterpret_cast<REX::W32::ID3D11Query*>(renderQuery));
+            if (renderQuery) {
+                context->Begin(reinterpret_cast<REX::W32::ID3D11Query*>(renderQuery));
+            }
 
             RenderMeshOveraly(RE::INTERFACE_LIGHT_SCHEME::kInventory);
             RenderMeshOveraly(RE::INTERFACE_LIGHT_SCHEME::kInventory);
-            context->End(reinterpret_cast<REX::W32::ID3D11Query*>(renderQuery));
+            if (renderQuery) {
+                context->End(reinterpret_cast<REX::W32::ID3D11Query*>(renderQuery));
+            }
             RemoveRenderedMesh(mesh);
             CopyRenderTargetToMesh(mesh, target);
 
@@ -210,6 +223,8 @@ void RenderManager::Render() {
         framebuffer.RTV = oldFramebufferRTV;
 
         context->OMSetRenderTargets(1, &oldBoundRTV, oldBoundDSV);
+        ReleaseIfExists(oldBoundRTV);
+        ReleaseIfExists(oldBoundDSV);
     }
 
     ReAttachOriginalMeshes();
@@ -367,6 +382,8 @@ void RenderManager::InitRenderTarget(RenderTarget* target)
 void RenderManager::Init(ID3D11Device* device, ID3D11DeviceContext* context) {
     RenderManager::device = device;
     RenderManager::context = context;
+    ReleaseIfExists(renderQuery);
+
     D3D11_QUERY_DESC queryDesc{};
     queryDesc.Query = D3D11_QUERY_OCCLUSION;
     if (FAILED(device->CreateQuery(&queryDesc, &renderQuery))) {
