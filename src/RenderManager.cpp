@@ -102,17 +102,22 @@ void RenderManager::Render() {
 
     {
     std::shared_lock lock(mutex);
+    auto manager = RE::UI3DSceneManager::GetSingleton();
 
-    if (meshes.size() == 0) {
-        return;
-    }
 
     auto ui = RE::UI::GetSingleton();
     if (ui->IsApplicationMenuOpen() || ui->IsMenuOpen(RE::MapMenu::MENU_NAME) || ui->IsMenuOpen(RE::MistMenu::MENU_NAME) || ui->IsMenuOpen(RE::MainMenu::MENU_NAME)) {
         return;
     }
 
-    auto manager = RE::UI3DSceneManager::GetSingleton();
+    if (lastLightScheme != manager->currentlightScheme) {
+        lastLightScheme = manager->currentlightScheme;
+        CreateLights();
+    }
+
+    if (meshes.size() == 0) {
+        return;
+    }
 
     isRenderingMesh = true;
 
@@ -121,12 +126,8 @@ void RenderManager::Render() {
 
     StoreOriginalRenderMeshes();
 
-    if (lastLightScheme != manager->currentlightScheme) {
-        lastLightScheme = manager->currentlightScheme;
-        CreateLights();
-    } else {
-        manager->currentlightScheme = RE::INTERFACE_LIGHT_SCHEME::kInventory;
-    }
+
+    manager->currentlightScheme = RE::INTERFACE_LIGHT_SCHEME::kInventory;
 
     std::map<std::string, std::vector<Mesh*>> meshesByResolution;
     for (auto& [key, mesh] : meshes) {
