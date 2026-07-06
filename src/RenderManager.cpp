@@ -138,7 +138,8 @@ void RenderManager::Render() {
         ui->IsMenuOpen(RE::BookMenu::MENU_NAME) ||
         ui->IsMenuOpen(RE::MapMenu::MENU_NAME) ||
         ui->IsMenuOpen(RE::MistMenu::MENU_NAME) ||
-        ui->IsMenuOpen(RE::MainMenu::MENU_NAME)) {
+        ui->IsMenuOpen(RE::MainMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::StatsMenu::MENU_NAME)) {
         return;
     }
 
