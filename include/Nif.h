@@ -22,6 +22,7 @@ public:
         result->nifPath = nifPath;
 
         result->obj = static_cast<RE::NiAVObject*>(tmp.get()->Clone());
+        result->obj->SetAppCulled(false);
         result->node.reset(result->obj->AsNode());
         result->obj->SetMotionType(RE::hkpMotion::MotionType::kKeyframed, true, false, true);
 
