@@ -168,6 +168,7 @@ MeshRenderingFrameworkAPI::Internal::IMesh* RenderManager::AddByNifPAth(const ch
     std::unique_lock lock(mutex);
     if (auto mesh = new Mesh(nifPath, width, height)) {
         meshes[mesh->mesh] = mesh;
+        lightRefreshPending = true;
         return mesh->mesh;
     }
 
@@ -178,6 +179,7 @@ MeshRenderingFrameworkAPI::Internal::IMesh* RenderManager::AddByNiAVObjectList(R
     std::unique_lock lock(mutex);
     if (auto mesh = new Mesh(objects, objectCount, width, height)) {
         meshes[mesh->mesh] = mesh;
+        lightRefreshPending = true;
         return mesh->mesh;
     }
 
@@ -264,7 +266,7 @@ void RenderManager::Render() {
         return;
     }
 
-    if (lastLightScheme != manager->currentlightScheme) {
+    if (lightRefreshPending.exchange(false) || lastLightScheme != manager->currentlightScheme) {
         lastLightScheme = manager->currentlightScheme;
         CreateLights();
     }

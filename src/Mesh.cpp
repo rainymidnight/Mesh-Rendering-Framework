@@ -30,7 +30,7 @@ void Mesh::AttachAndFit(RE::NiAVObject* object, RE::NiAVObject* objectToCenter, 
     node->Update();
 
     Geometry geo(object);
-    auto bound = geo.GetBoundingBox({0, 0, 0}, object->local.scale);
+    auto bound = geo.GetBoundingBox({0, 0, 0}, 1.0f);
     mesh->boundMin = bound.first;
     mesh->boundMax = bound.second;
     //logger::info("min {} {} {}", mesh->boundMin.x, mesh->boundMin.y, mesh->boundMin.z);

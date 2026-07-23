@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include <shared_mutex>
 #include "Mesh.h"
 #include "MeshRenderingFrameworkAPI.h"
@@ -38,6 +39,7 @@ class RenderManager {
     static inline ID3D11Query* renderQuery = nullptr;
 
     static inline RE::INTERFACE_LIGHT_SCHEME lastLightScheme = RE::INTERFACE_LIGHT_SCHEME::kTotal;
+    static inline std::atomic_bool lightRefreshPending = false;
     static inline bool isRenderingMesh = false;
     static inline std::vector<RE::NiAVObject*> originalChildren;
     static void CreateLights();
